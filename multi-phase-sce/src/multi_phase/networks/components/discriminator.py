@@ -32,7 +32,7 @@ class Discriminator(tf.keras.Model):
         # Get layers incorporating phase information
         self.phase_layers = config["d_phase_layers"]
        
-        assert num_layers <= max_num_layers and num_layers >= 0, \
+        assert num_layers <= max_num_layers and num_layers > 0, \
             f"Maximum number of discriminator layers: {max_num_layers}"
         self.encoder = []      
 

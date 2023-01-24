@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import tensorflow as tf
 
@@ -75,7 +74,6 @@ def test_PhaseLayerAssert(phase_layers: list[int]) -> None:
     """ Test phase layers checked for correctly """
 
     img_dims = [4, 64, 64, 16, 1]
-    out_dims = (4, 5, 5, 2, 1)
     config = {
         "ndf": 4,
         "d_layers": 3,
