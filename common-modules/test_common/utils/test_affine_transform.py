@@ -69,8 +69,8 @@ def test_transform_coords(thetas: list[list[int]]) -> None:
     affine.transform_coords(1, tf.constant(thetas.reshape([1, -1])))
     X, Y = affine.mesh_coords
 
-    assert np.isclose(X.numpy(), new_coords[0, :]).all()
-    assert np.isclose(Y.numpy(), new_coords[1, :]).all()
+    assert np.isclose(X, new_coords[0, :]).all()
+    assert np.isclose(Y, new_coords[1, :]).all()
 
 
 #-------------------------------------------------------------------------
@@ -96,8 +96,8 @@ def test_transform_coords_mb(mb_size: int) -> None:
     X, Y = affine.mesh_coords
     ground_truth_X = np.hstack([c[0, :] for c in new_coords])
     ground_truth_Y = np.hstack([c[1, :] for c in new_coords])
-    np.isclose(X, ground_truth_X).all()
-    np.isclose(Y, ground_truth_Y).all()
+    assert np.isclose(X, ground_truth_X).all()
+    assert np.isclose(Y, ground_truth_Y).all()
 
 
 #-------------------------------------------------------------------------
