@@ -1,0 +1,15 @@
+data:
+    data_path: D:/ProjectImages/SyntheticContrastDev
+    target:
+        - AC
+        - VC
+    source:
+        - HQ
+    segs:
+        - AC
+    times: times_ordinal.json
+    down_sample: 1
+    patch_size: [64, 64, 64]
+    num_examples: 4
+    cv_folds: 3
+    fold: 2
