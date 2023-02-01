@@ -12,5 +12,10 @@ setup(
         "from non-contrast-enhanced computed tomography images"
     ),
     author="Mark Pinnock",
-    license="MIT"
+    license="MIT",
+        entry_points={
+        "console_scripts": [
+            "train=multi_phase.cli.training:main"
+        ]
+    }
 )
