@@ -56,7 +56,3 @@ diff = true
 line-length = 88
 preview = true
 target-version = ['py310']
-
-[tool.flake8]
-max-line-length = 88
-max-complexity = 10
