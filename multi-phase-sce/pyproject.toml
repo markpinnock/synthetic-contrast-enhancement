@@ -1,0 +1,62 @@
+[build-system]
+requires = [
+  "setuptools>=42",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-phase-sce"
+version = "0.1.0"
+description = "Multi-phase synthetic contrast enhancement: comparison of U-Net, Pix2Pix and CycleGAN for generating two contrast phases from non-contrast-enhanced computed tomography images"
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "matplotlib>=3.4",
+    "pytest>=7.1.2",
+    "pyyaml==6.0",
+    "simpleitk>=2.1",
+    "tensorflow==2.9.1"
+]
+
+requires-python = ">=3.10,<3.11"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+train="multi_phase.cli.training:main"
+
+[project.optional-dependencies]
+quality = [
+    "black",
+    "flake8",
+    "isort",
+    "mypy"
+]
+test = ["pytest"]
+
+[tool.mypy]
+python_version = "3.8"
+ignore_missing_imports = true
+scripts_are_modules = true
+namespace_packages = true
+show_traceback = true
+strict_optional = true
+warn_unused_configs = true
+
+[tool.black]
+diff = true
+line-length = 88
+preview = true
+target-version = ['py310']
+
+[tool.flake8]
+max-line-length = 88
+max-complexity = 10
