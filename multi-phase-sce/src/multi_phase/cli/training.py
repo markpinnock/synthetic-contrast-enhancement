@@ -10,10 +10,10 @@ from multi_phase.trainingloops.build_training_loop import get_training_loop
 from multi_phase.utils.build_dataloader import get_train_dataloader
 
 
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+
 
 def train(config: dict):
-
     # Get datasets and data generator
     train_ds, val_ds, train_gen, val_gen = get_train_dataloader(config)
 
@@ -39,17 +39,20 @@ def train(config: dict):
         with writer.as_default():
             tf.summary.trace_export("graph", step=0)
 
-    TrainingLoop = get_training_loop(Model=Model,
-                                     dataset=(train_ds, val_ds),
-                                     train_generator=train_gen,
-                                     val_generator=val_gen,
-                                     config=config)
+    TrainingLoop = get_training_loop(
+        Model=Model,
+        dataset=(train_ds, val_ds),
+        train_generator=train_gen,
+        val_generator=val_gen,
+        config=config,
+    )
 
     # Run training loop
     TrainingLoop.train()
 
 
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -65,7 +68,7 @@ def main():
     # Parse config json
     with open(expt_path / "config.yml", 'r') as fp:
         config = yaml.load(fp, yaml.FullLoader)
-    
+
     config["paths"]["expt_path"] = arguments.path
 
     # Set GPU
@@ -75,11 +78,11 @@ def main():
         gpus = tf.config.experimental.list_physical_devices("GPU")
         tf.config.set_visible_devices(gpus[gpu_number], "GPU")
         tf.config.experimental.set_memory_growth(gpus[gpu_number], True)
-    
+
     train(config)
 
 
-#-------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 if __name__ == "__main__":
     main()
