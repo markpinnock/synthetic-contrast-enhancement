@@ -4,18 +4,19 @@ channels:
   - conda-forge
   - simpleitk
 dependencies:
-  - pip=22.2.2
+  - pip=22.2
   - python=3.8
-  - black
+  - black=22.6.0
   - cudatoolkit=10.1.243
   - cudnn=7.6.5
-  - flake8
-  - isort
+  - flake8=6.0.0
+  - isort=5.9.3
   - matplotlib>=3.4
-  - mypy
+  - mypy=0.981
+  - pre-commit=2.20.0
   - pytest>=7.1.2
   - pyyaml=6.0
   - simpleitk>=2.1
   - tensorflow-gpu=2.3.0
-  - tox
+  - tox=4.3.5
   
