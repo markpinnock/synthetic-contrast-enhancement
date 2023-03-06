@@ -1,0 +1,25 @@
+name: Run tests (multi-phase-sce)
+
+on:
+  push:
+    paths:
+      - multi-phase-sce/**
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: multi-phase-sce
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - name: Install tox
+        run: pip install tox
+
+      - name: Run pytest
+        run: tox -e py38-pytest
