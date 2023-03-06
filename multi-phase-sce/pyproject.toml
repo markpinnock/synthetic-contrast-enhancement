@@ -19,13 +19,12 @@ classifiers = [
 
 dependencies = [
     "matplotlib>=3.4",
-    "pytest>=7.1.2",
     "pyyaml==6.0",
     "simpleitk>=2.1",
-    "tensorflow==2.9.1"
+    "tensorflow==2.3.0"
 ]
 
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.8,<3.11"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -43,17 +42,22 @@ quality = [
 test = ["pytest"]
 
 [tool.mypy]
-python_version = "3.10"
-ignore_missing_imports = true
-scripts_are_modules = true
-namespace_packages = true
-show_traceback = true
-strict_optional = true
 warn_unused_configs = true
+namespace_packages = true
+python_version = "3.8"
+strict = true
+warn_unreachable = true
+hide_error_codes = false
+pretty = true
+show_traceback = true
+install_types = true
+scripts_are_modules = true
 
 [tool.black]
-diff = true
+color = true
 line-length = 88
-preview = true
-target-version = ['py310']
-skip-string-normalization = true
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+include_trailing_comma = true
