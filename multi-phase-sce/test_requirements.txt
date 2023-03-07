@@ -1,0 +1,4 @@
+matplotlib>=3.4
+pyyaml==6.0
+tensorflow==2.3.0
+protobuf<=3.20.1
