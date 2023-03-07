@@ -1,4 +1,5 @@
 import tensorflow as tf
+from typing import Tuple, Union
 
 DROPOUT_PROB = 0.5
 EPSILON = 1e-12
@@ -10,7 +11,7 @@ EPSILON = 1e-12
 class InstanceNorm(tf.keras.layers.Layer):
     """Instance normalisation layer for Pix2Pix generator"""
 
-    def __init__(self, name: str | None = None):
+    def __init__(self, name: Union[str, None] = None):
         super().__init__(name=name)
         self.epsilon = EPSILON
 
@@ -28,7 +29,7 @@ class InstanceNorm(tf.keras.layers.Layer):
             trainable=True,
         )
 
-    def call(self, x, training: bool | None = None):
+    def call(self, x, training: Union[bool, None] = None):
         mu = tf.math.reduce_mean(x, axis=[1, 2, 3], keepdims=True)
         sigma = tf.math.reduce_std(x, axis=[1, 2, 3], keepdims=True)
 
@@ -52,12 +53,12 @@ class DownBlock(tf.keras.layers.Layer):
     def __init__(
         self,
         nc: int,
-        weights: tuple[int],
-        strides: tuple[int],
+        weights: Tuple[int],
+        strides: Tuple[int],
         initialiser: tf.keras.initializers.Initializer,
         model: str,
         batch_norm: bool = True,
-        name: str | None = None,
+        name: Union[str, None] = None,
     ):
         super().__init__(name=name)
         self.batch_norm = batch_norm
@@ -86,7 +87,7 @@ class DownBlock(tf.keras.layers.Layer):
         else:
             self.phase_reps = 2
 
-    def call(self, x: tf.Tensor, t: tf.Tensor | None = None):
+    def call(self, x: tf.Tensor, t: Union[tf.Tensor, None] = None):
         """Layer call method. NB: training argument not used as
         discriminator not used in inference mode
         :param x: feature map from previous layer
@@ -126,12 +127,12 @@ class UpBlock(tf.keras.layers.Layer):
     def __init__(
         self,
         nc: int,
-        weights: tuple[int],
-        strides: tuple[int],
+        weights: Tuple[int],
+        strides: Tuple[int],
         initialiser: tf.keras.initializers.Initializer,
         instance_norm: bool = True,
         dropout: bool = False,
-        name: str | None = None,
+        name: Union[str, None] = None,
     ):
         super().__init__(name=name)
         self.instance_norm = instance_norm
@@ -168,7 +169,7 @@ class UpBlock(tf.keras.layers.Layer):
 
         self.concat = tf.keras.layers.Concatenate(name="concat")
 
-    def call(self, x: tf.Tensor, skip: tf.Tensor, t: tf.Tensor | None = None):
+    def call(self, x: tf.Tensor, skip: tf.Tensor, t: Union[tf.Tensor, None] = None):
         """Layer call method. NB: training argument not used with
         instance norm and dropout is used during inference
         :param x: feature map from previous layer
