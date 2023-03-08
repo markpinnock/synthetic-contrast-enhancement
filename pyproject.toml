@@ -27,7 +27,7 @@ dependencies = [
 requires-python = ">=3.8,<3.11"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["multi-phase-sce/src"]
 
 [project.scripts]
 train="multi_phase.cli.training:main"

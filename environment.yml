@@ -19,4 +19,3 @@ dependencies:
   - simpleitk>=2.1
   - tensorflow-gpu=2.3.0
   - tox=4.3.5
-  
