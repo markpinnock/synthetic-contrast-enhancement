@@ -40,24 +40,3 @@ quality = [
     "mypy"
 ]
 test = ["pytest"]
-
-[tool.mypy]
-warn_unused_configs = true
-namespace_packages = true
-python_version = "3.8"
-strict = true
-warn_unreachable = true
-hide_error_codes = false
-pretty = true
-show_traceback = true
-install_types = true
-scripts_are_modules = true
-
-[tool.black]
-color = true
-line-length = 88
-target-version = ["py38"]
-
-[tool.isort]
-profile = "black"
-include_trailing_comma = true
