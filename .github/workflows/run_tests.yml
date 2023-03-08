@@ -1,4 +1,4 @@
-name: Run tests (multi-phase-sce)
+name: Run tests
 
 on: push
 
