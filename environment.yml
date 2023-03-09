@@ -11,10 +11,11 @@ dependencies:
   - cudnn=7.6.5
   - flake8=6.0.0
   - isort=5.9.3
-  - matplotlib>=3.4
+  - matplotlib=3.4.3
   - mypy=0.981
+  - pillow=9.0.0
   - pre-commit=2.20.0
-  - pytest>=7.1.2
+  - pytest=7.1.2
   - pyyaml=6.0
   - simpleitk>=2.1
   - tensorflow-gpu=2.3.0

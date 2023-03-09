@@ -18,10 +18,9 @@ classifiers = [
 ]
 
 dependencies = [
-    "matplotlib>=3.4",
+    "matplotlib==3.4.3",
     "pyyaml==6.0",
     "simpleitk>=2.1",
-    "tensorflow==2.3.0"
 ]
 
 requires-python = ">=3.8,<3.11"
@@ -39,4 +38,7 @@ quality = [
     "isort",
     "mypy"
 ]
-test = ["pytest"]
+test = [
+    "pytest==7.1.2",
+    "tensorflow==2.3.0",
+]
