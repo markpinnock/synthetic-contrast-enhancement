@@ -1,14 +1,24 @@
 import glob
 import json
-import numpy as np
 import os
-import tensorflow as tf
+from typing import Any, Dict, Iterator, List, TypedDict, Union
 
-from common import RANDOM_SEED
-from multi_phase.utils.patch_utils import generate_indices, extract_patches
+import numpy as np
+import numpy.typing as npt
+import tensorflow as tf
+from multi_phase import RANDOM_SEED
+from multi_phase.utils.patch_utils import extract_patches, generate_indices
 
 HU_MIN = -500
 HU_MAX = 2500
+
+
+# -------------------------------------------------------------------------
+
+
+class PairedImgs(TypedDict):
+    source: str
+    target: List[str]
 
 
 # -------------------------------------------------------------------------
@@ -21,26 +31,15 @@ class ImgLoader:
     :param dataset_type: 'training' or 'validation'
     """
 
-    def __init__(self, config: dict, dataset_type: str) -> None:
+    def __init__(self, config: Dict[str, Any], dataset_type: str) -> None:
         # Expects at least two sub-folders within data folder e.g. "AC", "VC, "HQ"
         img_path = f"{config['data_path']}/Images"
         seg_path = f"{config['data_path']}/Segmentations"
-        self.sub_folders = [
-            f for f in os.listdir(img_path) if os.path.isdir(f"{img_path}/{f}")
-        ]
-        self.seg_folders = [
-            f for f in os.listdir(seg_path) if os.path.isdir(f"{img_path}/{f}")
-        ]
 
-        if len(self.sub_folders) == 0:
-            print("==================================================")
-            print("Assuming unpaired dataset")
-            self._img_paths = img_path
-            self._seg_paths = seg_path
-
-        else:
-            self._img_paths = {key: f"{img_path}/{key}" for key in self.sub_folders}
-            self._seg_paths = {key: f"{seg_path}/{key}" for key in self.seg_folders}
+        print("==================================================")
+        print("Assuming unpaired dataset")
+        self._img_paths = img_path
+        self._seg_paths = seg_path
 
         self._dataset_type = dataset_type
         self.config = config
@@ -50,7 +49,7 @@ class ImgLoader:
 
         if config["times"] is not None:
             self._json = json.load(
-                open(f"{config['data_path']}/{config['times']}", 'r')
+                open(f"{config['data_path']}/{config['times']}"),
             )
 
         else:
@@ -81,7 +80,7 @@ class ImgLoader:
         print("==================================================")
         print(
             f"Data: {len(self._targets)} targets, {len(self._sources)} sources,"
-            f" {len(self._segs)} segmentations"
+            f" {len(self._segs)} segmentations",
         )
         print(f"Using unpaired loader for {self._dataset_type}")
 
@@ -93,9 +92,9 @@ class ImgLoader:
                 for k, v in self._subject_imgs.items()
             }
         else:
-            self._subject_targets = None
+            self._subject_targets = None  # type: ignore[assignment]
 
-    def example_images(self) -> None:
+    def example_images(self) -> Dict[str, npt.NDArray[np.float32]]:
         """Returns example images for use in monitoring training"""
 
         if self._json is not None:
@@ -115,17 +114,16 @@ class ImgLoader:
         """Splits dataset into training and validation subsets"""
 
         # Get unique subject IDs for subject-level train/val split
-        self._unique_ids = []
+        self._unique_ids: List[str] = []
 
         for img_id in self._targets:
             if img_id[0:4] not in self._unique_ids:
                 self._unique_ids.append(img_id[0:4])
 
         self._unique_ids.sort()
-        self._subject_imgs = {}
 
         # Need procedure IDs (as poss. >1 per subject) to build ordered index of subjects' images
-        self._subject_imgs = {}
+        self._subject_imgs: Dict[str, List[str]] = {}
 
         for img_id in self._targets + self._sources:
             if img_id[0:6] not in self._subject_imgs.keys():
@@ -136,12 +134,13 @@ class ImgLoader:
 
         for key in self._subject_imgs.keys():
             self._subject_imgs[key] = sorted(
-                self._subject_imgs[key], key=lambda x: int(x[-3:])
+                self._subject_imgs[key],
+                key=lambda x: int(x[-3:]),
             )
 
         if self.config["fold"] > self.config["cv_folds"] - 1:
             raise ValueError(
-                f"Fold number {self.config['fold']} of {self.config['cv_folds']} folds"
+                f"Fold number {self.config['fold']} of {self.config['cv_folds']} folds",
             )
 
         np.random.seed(RANDOM_SEED)
@@ -169,13 +168,13 @@ class ImgLoader:
             self._fold_targets = []
             self._fold_sources = []
             self._fold_targets = sorted(
-                [img for img in self._targets if img[0:4] in fold_ids]
+                [img for img in self._targets if img[0:4] in fold_ids],
             )
             self._fold_sources = sorted(
-                [img for img in self._sources if img[0:4] in fold_ids]
+                [img for img in self._sources if img[0:4] in fold_ids],
             )
             self._fold_segs = sorted(
-                [seg for seg in self._segs if seg[0:4] in fold_ids]
+                [seg for seg in self._segs if seg[0:4] in fold_ids],
             )
 
         elif self.config["cv_folds"] == 1:
@@ -187,73 +186,59 @@ class ImgLoader:
             raise ValueError("Number of folds must be > 0")
 
         example_idx = np.random.randint(
-            0, len(self._fold_sources), self.config["num_examples"]
+            0,
+            len(self._fold_sources),
+            self.config["num_examples"],
         )
         ex_sources_list = list(np.array([self._fold_sources]).squeeze()[example_idx])
 
-        if len(self.sub_folders) == 0:
+        try:
+            ex_targets_list = [
+                np.random.choice(
+                    [
+                        t
+                        for t in self._fold_targets
+                        if s[0:6] in t and "AC" in t and t not in s
+                    ],
+                )
+                for s in ex_sources_list[0 : len(ex_sources_list) // 2]
+            ]
+            ex_targets_list += [
+                np.random.choice(
+                    [
+                        t
+                        for t in self._fold_targets
+                        if s[0:6] in t and "VC" in t and t not in s
+                    ],
+                )
+                for s in ex_sources_list[len(ex_sources_list) // 2 :]
+            ]
+        except ValueError:
             try:
                 ex_targets_list = [
                     np.random.choice(
                         [
                             t
                             for t in self._fold_targets
-                            if s[0:6] in t and 'AC' in t and t not in s
-                        ]
+                            if s[0:6] in t and "AC" in t and t not in s
+                        ],
                     )
-                    for s in ex_sources_list[0 : len(ex_sources_list) // 2]
+                    for s in ex_sources_list[0 : len(ex_sources_list)]
                 ]
-                ex_targets_list += [
+            except ValueError:
+                ex_targets_list = [
                     np.random.choice(
                         [
                             t
                             for t in self._fold_targets
-                            if s[0:6] in t and 'VC' in t and t not in s
-                        ]
+                            if s[0:6] in t and "VC" in t and t not in s
+                        ],
                     )
-                    for s in ex_sources_list[len(ex_sources_list) // 2 :]
+                    for s in ex_sources_list[0 : len(ex_sources_list)]
                 ]
-            except ValueError:
-                try:
-                    ex_targets_list = [
-                        np.random.choice(
-                            [
-                                t
-                                for t in self._fold_targets
-                                if s[0:6] in t and 'AC' in t and t not in s
-                            ]
-                        )
-                        for s in ex_sources_list[0 : len(ex_sources_list)]
-                    ]
-                except ValueError:
-                    ex_targets_list = [
-                        np.random.choice(
-                            [
-                                t
-                                for t in self._fold_targets
-                                if s[0:6] in t and 'VC' in t and t not in s
-                            ]
-                        )
-                        for s in ex_sources_list[0 : len(ex_sources_list)]
-                    ]
 
-            ex_sources = [
-                np.load(f"{self._img_paths}/{img}") for img in ex_sources_list
-            ]
-            ex_targets = [
-                np.load(f"{self._img_paths}/{img}") for img in ex_targets_list
-            ]
-
-        else:
-            ex_targets_list = list(
-                np.array([self._fold_targets]).squeeze()[example_idx]
-            )
-            ex_sources = [
-                np.load(f"{self._img_paths[img[6:8]]}/{img}") for img in ex_sources_list
-            ]
-            ex_targets = [
-                np.load(f"{self._img_paths[img[6:8]]}/{img}") for img in ex_targets_list
-            ]
+        ex_sources = [np.load(f"{self._img_paths}/{img}") for img in ex_sources_list]
+        ex_targets = [np.load(f"{self._img_paths}/{img}") for img in ex_targets_list]
 
         ex_sources_stack = []
         ex_targets_stack = []
@@ -306,10 +291,12 @@ class ImgLoader:
 
         if self._json is not None:
             self._ex_source_times = np.stack(
-                [self._json[name[:-4] + ".nrrd"] for name in ex_sources_list], axis=0
+                [self._json[name[:-4] + ".nrrd"] for name in ex_sources_list],
+                axis=0,
             ).astype("float32")
             self._ex_target_times = np.stack(
-                [self._json[name[:-4] + ".nrrd"] for name in ex_targets_list], axis=0
+                [self._json[name[:-4] + ".nrrd"] for name in ex_targets_list],
+                axis=0,
             ).astype("float32")
 
         else:
@@ -320,40 +307,35 @@ class ImgLoader:
 
         print(
             f"{len(self._fold_targets)} of {len(self._targets)} examples in"
-            f" {self._dataset_type} folds"
+            f" {self._dataset_type} folds",
         )
 
     @property
-    def unique_ids(self) -> list:
+    def unique_ids(self) -> List[str]:
         return self._unique_ids
 
     @property
-    def data(self) -> dict:
+    def data(self) -> Dict[str, List[str]]:
         """Return list of all images"""
         return {"targets": self._targets, "sources": self._sources}
 
     @property
-    def fold_data(self) -> dict:
+    def fold_data(self) -> Dict[str, List[str]]:
         """Return list of all images in training or validation fold"""
         return {"targets": self._fold_targets, "sources": self._fold_sources}
 
     @property
-    def subject_imgs(self):
+    def subject_imgs(self) -> Dict[str, List[str]]:
         """Return list of images indexed by procedure"""
         return self._subject_imgs
 
-    @property
-    def norm_params(self):
-        """Return mean/std or min/max parameters"""
-        return (self.param_1, self.param_2)
-
-    def _normalise(self, img):
+    def _normalise(self, img: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
         return (img - HU_MIN) / (HU_MAX - HU_MIN)
 
-    def un_normalise(self, img):
+    def un_normalise(self, img: npt.NDArray[np.float32]) -> npt.NDArray[np.float32]:
         return img * (HU_MAX - HU_MIN) + HU_MIN
 
-    def data_generator(self) -> None:
+    def data_generator(self) -> Iterator[Dict[str, npt.NDArray[np.float32]]]:
         if self._dataset_type == "training":
             np.random.shuffle(self._fold_sources)
 
@@ -365,19 +347,10 @@ class ImgLoader:
             source_name = self._fold_sources[i]
             names = self.img_pairer(source_name)
             source_name = names["source"]
-
-            if len(self.sub_folders) == 0:
-                source = np.load(f"{self._img_paths}/{source_name}")
-            else:
-                source = np.load(f"{self._img_paths[source_name[6:8]]}/{source_name}")
+            source = np.load(f"{self._img_paths}/{source_name}")
 
             for target_name in names["target"]:
-                if len(self.sub_folders) == 0:
-                    target = np.load(f"{self._img_paths}/{target_name}")
-                else:
-                    target = np.load(
-                        f"{self._img_paths[target_name[6:8]]}/{target_name}"
-                    )
+                target = np.load(f"{self._img_paths}/{target_name}")
 
                 # Extract patches
                 total_height = target.shape[0]
@@ -413,34 +386,19 @@ class ImgLoader:
                         source_time = self._json[names["source"][:-4] + ".nrrd"]
                         target_time = self._json[target_name[:-4] + ".nrrd"]
 
-                    # TODO: allow using different seg channels
                     if len(self._fold_segs) > 0:
-                        if len(self.sub_folders) == 0:
-                            candidate_segs = glob.glob(
-                                f"{self._seg_paths}/{target_name[0:6]}AC*{target_name[-4:]}"
-                            )
-                            assert len(candidate_segs) == 1, candidate_segs
-                            seg = np.load(candidate_segs[0])
-                            seg = seg[
-                                x : (x + self._patch_size[0]) : self.down_sample,
-                                y : (y + self._patch_size[1]) : self.down_sample,
-                                z : (z + self._patch_size[2]),
-                                np.newaxis,
-                            ]
-                            seg[seg > 1] = 1
-                            # TODO: return index
-
-                        else:
-                            seg = np.load(
-                                f"{self._seg_paths[target_name[6:8]]}/{target_name}"
-                            )
-                            seg = seg[
-                                x : (x + self._patch_size[0]) : self.down_sample,
-                                y : (y + self._patch_size[1]) : self.down_sample,
-                                z : (z + self._patch_size[2]),
-                                np.newaxis,
-                            ]
-                            seg[seg > 1] = 1
+                        candidate_segs = glob.glob(
+                            f"{self._seg_paths}/{target_name[0:6]}AC*{target_name[-4:]}",
+                        )
+                        assert len(candidate_segs) == 1, candidate_segs
+                        seg = np.load(candidate_segs[0])
+                        seg = seg[
+                            x : (x + self._patch_size[0]) : self.down_sample,
+                            y : (y + self._patch_size[1]) : self.down_sample,
+                            z : (z + self._patch_size[2]),
+                            np.newaxis,
+                        ]
+                        seg[seg > 1] = 1
 
                         if self._json is not None:
                             yield {
@@ -470,19 +428,16 @@ class ImgLoader:
 
             i += 1
 
-    def inference_generator(self):
+    def inference_generator(
+        self,
+    ):  # -> Iterator[Dict[str, Union[npt.NDArray[np.float32], str, int]]]:
         N = len(self._fold_sources)
         i = 0
 
         # Pair source and target images
         while i < N:
             source_name = self._fold_sources[i]
-
-            if len(self.sub_folders) == 0:
-                source = np.load(f"{self._img_paths}/{source_name}")
-            else:
-                source = np.load(f"{self._img_paths[source_name[6:8]]}/{source_name}")
-
+            source = np.load(f"{self._img_paths}/{source_name}")
             source = self._normalise(source)
             patches, indices = extract_patches(
                 source,
@@ -503,20 +458,19 @@ class ImgLoader:
 
             i += 1
 
-    def subject_generator(self, source_name):
+    def subject_generator(self, source_name: str):
         source_name = source_name.decode("utf-8")
-
-        if len(self.sub_folders) == 0:
-            source = np.load(f"{self._img_paths}/{source_name}")
-        else:
-            source = np.load(f"{self._img_paths[source_name[6:8]]}/{source_name}")
+        source = np.load(f"{self._img_paths}/{source_name}")
 
         # Linear coords are what we'll use to do our patch updates in 1D
         # E.g. [1, 2, 3
         #       4, 5, 6
         #       7, 8, 9]
         linear_coords = generate_indices(
-            source, self.config["stride_length"], self._patch_size, self.down_sample
+            source,
+            self.config["stride_length"],
+            self._patch_size,
+            self.down_sample,
         )
 
         source = self._normalise(source)
@@ -527,8 +481,7 @@ class ImgLoader:
 
             yield {"real_source": patch, "subject_ID": source_name, "coords": coords}
 
-    def img_pairer(self, source: object, direction: str = None) -> dict:
-        # TODO: add forwards/backwards sampling, return idx
+    def img_pairer(self, source: str) -> PairedImgs:
         if self._subject_targets is None:
             target_candidates = list(self._subject_imgs[source[0:6]])
         else:
@@ -548,12 +501,14 @@ class ImgLoader:
 """ Routine for visually testing dataloader """
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
     from pathlib import Path
+
+    import matplotlib.pyplot as plt
     import yaml
 
     test_config = yaml.load(
-        open(Path(__file__).parent / "test_config.yml", 'r'), Loader=yaml.FullLoader
+        open(Path(__file__).parent / "test_config.yml"),
+        Loader=yaml.FullLoader,
     )
 
     TestLoader = ImgLoader(config=test_config["data"], dataset_type="training")
@@ -567,7 +522,8 @@ if __name__ == "__main__":
         output_types += ["source_times", "target_times"]
 
     train_ds = tf.data.Dataset.from_generator(
-        TestLoader.data_generator, output_types={k: "float32" for k in output_types}
+        TestLoader.data_generator,
+        output_types={k: "float32" for k in output_types},
     )
 
     for data in train_ds.batch(2).take(16):
