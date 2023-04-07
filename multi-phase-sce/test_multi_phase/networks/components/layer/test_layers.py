@@ -1,5 +1,6 @@
 import pytest
 import tensorflow as tf
+from typing import List, Tuple
 
 from multi_phase.networks.components.layer.layers import (
     DownBlock,
@@ -18,8 +19,8 @@ from multi_phase.networks.components.layer.layers import (
     ]
 )
 def test_DownBlockNoPhase(
-    strides: tuple[int],
-    out_dims: list[int]
+    strides: Tuple[int],
+    out_dims: List[int]
 ) -> None:
     """ Test DownBlock with no phase information """
 
@@ -77,8 +78,8 @@ def test_DownBlockPhase(model: str) -> None:
     ]
 )
 def test_UpBlockNoPhase(
-    strides: list[int],
-    out_dims: list[int]
+    strides: List[int],
+    out_dims: List[int]
 ) -> None:
     """ Test UpBlock without phase information """
 

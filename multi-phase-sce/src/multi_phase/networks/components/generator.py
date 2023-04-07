@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from typing import Union
 
 from .layer.layers import DownBlock, UpBlock
 
@@ -18,7 +19,7 @@ class Generator(tf.keras.Model):
         initialiser: tf.keras.initializers.Initializer,
         config: dict,
         mode: str = "GAN",
-        name: str | None = None,
+        name: Union[str, None] = None,
     ):
         super().__init__(name=name)
 

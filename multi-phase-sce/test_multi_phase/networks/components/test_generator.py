@@ -1,5 +1,6 @@
 import pytest
 import tensorflow as tf
+from typing import List
 
 from multi_phase.networks.components.generator import Generator
 
@@ -14,7 +15,7 @@ from multi_phase.networks.components.generator import Generator
         (7, [4, 64, 64, 16, 1])
     ]
 )
-def test_ImgDimsAssert(depth: int, img_dims: list[int]) -> None:
+def test_ImgDimsAssert(depth: int, img_dims: List[int]) -> None:
     """ Test assertion raised if too many layers """
 
     config = {
@@ -41,7 +42,7 @@ def test_ImgDimsAssert(depth: int, img_dims: list[int]) -> None:
         (3, [4, 64, 64, 16, 1])
     ]
 )
-def test_NoPhaseOutput(depth: int, img_dims: list[int]) -> None:
+def test_NoPhaseOutput(depth: int, img_dims: List[int]) -> None:
     """ Test generator output is correct size """
 
     config = {
@@ -65,7 +66,7 @@ def test_NoPhaseOutput(depth: int, img_dims: list[int]) -> None:
 @pytest.mark.parametrize(
     "phase_layers", [(["down_3"]), (["up_4", "down_1"])]
 )
-def test_PhaseLayerAssert(phase_layers: list[int]) -> None:
+def test_PhaseLayerAssert(phase_layers: List[int]) -> None:
     """ Test phase layers checked for correctly """
 
     img_dims = [4, 64, 64, 16, 1]
@@ -93,7 +94,7 @@ def test_PhaseLayerAssert(phase_layers: list[int]) -> None:
         (["down_0", "down_1", "up_1"]),
     ]
 )
-def test_PhaseOutput(phase_layers: list[int]) -> None:
+def test_PhaseOutput(phase_layers: List[int]) -> None:
     """ Test discriminator output is correct size """
 
     img_dims = [4, 64, 64, 16, 1]
