@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 import tensorflow as tf
-from typing import Callable
+from typing import Callable, List, Tuple
 
-from common import RANDOM_SEED
-from common.utils.augmentation import StdAug, DiffAug
+from multi_phase import RANDOM_SEED
+from multi_phase.utils.augmentation import StdAug, DiffAug
 
 tf.random.set_seed(RANDOM_SEED)
 
@@ -42,7 +42,7 @@ DIFF_AUG_CONFIG = {
 #-------------------------------------------------------------------------
 
 @pytest.fixture
-def create_test_img(img_dims: list[int]) -> tuple[tf.Tensor, list[int]]:
+def create_test_img(img_dims: List[int]) -> Tuple[tf.Tensor, List[int]]:
     """ Create test images """
 
     img = np.zeros(img_dims, dtype="float32")

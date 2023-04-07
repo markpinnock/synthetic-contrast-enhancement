@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from typing import List, Tuple, Union
 
 
 """ Based on implementation of spatial transformer networks:
@@ -14,7 +15,7 @@ class AffineTransform(tf.keras.layers.Layer):
         :param img_dims: dimensions of expected input images
     """
 
-    def __init__(self, img_dims: list | tuple, name: str = "affine"):
+    def __init__(self, img_dims: Union[List[int], Tuple[int, int, int]], name: str = "affine"):
         super().__init__(name=name)
 
         if len(img_dims) == 2:
@@ -68,7 +69,7 @@ class AffineTransform(tf.keras.layers.Layer):
         self._X = tf.reshape(new_flat_coords[:, 0, :], [-1])
         self._Y = tf.reshape(new_flat_coords[:, 1, :], [-1])
     
-    def get_img_indices(self) -> tuple[tf.Tensor, tuple[tf.Tensor]]:
+    def get_img_indices(self) -> Tuple[tf.Tensor, Tuple[tf.Tensor, ...]]:
         """ Generates base indices corresponding to each image in mb
             e.g. [0   0   0
                   hw  hw  hw
@@ -113,7 +114,7 @@ class AffineTransform(tf.keras.layers.Layer):
         x1: tf.Tensor,
         y0: tf.Tensor,
         y1: tf.Tensor
-    ) -> list[tf.Tensor]:
+    ) -> List[tf.Tensor]:
 
         """ Generate weights representing how close bracketing
             indices are to transformed coords
@@ -139,7 +140,7 @@ class AffineTransform(tf.keras.layers.Layer):
         self,
         im: tf.Tensor,
         base: tf.Tensor,
-        weights: list[tf.Tensor],
+        weights: List[tf.Tensor],
         n_ch: int,
         x0: tf.Tensor,
         x1: tf.Tensor,

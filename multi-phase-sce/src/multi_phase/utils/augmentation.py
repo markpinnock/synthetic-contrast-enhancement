@@ -1,4 +1,5 @@
 import tensorflow as tf
+from typing import List, Tuple, Union
 
 from .affine_transformation import AffineTransform
 
@@ -41,10 +42,10 @@ class DiffAug(tf.keras.layers.Layer):
     
     def translation(
         self,
-        imgs: list[tf.Tensor],
-        seg: tf.Tensor | None = None,
+        imgs: List[tf.Tensor],
+        seg: Union[tf.Tensor, None] = None,
         ratio: float = 0.125
-    ) -> tuple[list[tf.Tensor], tf.Tensor]:
+    ) -> Tuple[List[tf.Tensor], tf.Tensor]:
         """ Random translation by ratio 0.125 """
 
         # NB: This assumes NHWDC format and does not (yet) act in z direction
@@ -100,10 +101,10 @@ class DiffAug(tf.keras.layers.Layer):
 
     def cutout(
         self,
-        imgs: list[tf.Tensor],
-        seg: tf.Tensor | None = None,
+        imgs: List[tf.Tensor],
+        seg: Union[tf.Tensor, None] = None,
         ratio: float = 0.5
-    ) -> tuple[list[tf.Tensor], tf.Tensor]:
+    ) -> Tuple[List[tf.Tensor], tf.Tensor]:
         """ Random cutout by ratio 0.5 """
         # NB: This assumes NHWDC format and does not (yet) act in z direction
 
@@ -165,9 +166,9 @@ class DiffAug(tf.keras.layers.Layer):
 
     def call(
         self,
-        imgs: list[tf.Tensor],
-        seg: tf.Tensor | None = None
-    ) -> tuple[list[tf.Tensor], tf.Tensor]:
+        imgs: List[tf.Tensor],
+        seg: Union[tf.Tensor, None] = None
+    ) -> Tuple[List[tf.Tensor], tf.Tensor]:
         """ Augmentation call method
             :param imgs: list of images to be augmented
             :param seg: (optional) segmentation to be augmented
@@ -314,9 +315,9 @@ class StdAug(tf.keras.layers.Layer):
     
     def call(
         self,
-        imgs: list[tf.Tensor],
-        seg: tf.Tensor | None = None
-    ) -> tuple[list[tf.Tensor], tf.Tensor]:
+        imgs: List[tf.Tensor],
+        seg: Union[tf.Tensor, None] = None
+    ) -> Tuple[List[tf.Tensor], tf.Tensor]:
         """ Augmentation call method
             :param imgs: list of images to be augmented
             :param seg: (optional) segmentation to be augmented
@@ -346,7 +347,7 @@ class StdAug(tf.keras.layers.Layer):
 #-------------------------------------------------------------------------
 """ Short routine for visually testing augmentations """
 
-def plot(aug: StdAug | DiffAug) -> None:
+def plot(aug: Union[StdAug, DiffAug]) -> None:
     """ Generates and plots example augmented images
         :param aug: augmentation class
     """
