@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools>=42",
+  "setuptools>=62",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -18,16 +18,15 @@ classifiers = [
 ]
 
 dependencies = [
-    "matplotlib>=3.4",
-    "pyyaml==6.0",
+    "matplotlib>=3.4.3",
+    "pyyaml>=6.0",
     "simpleitk>=2.1",
-    "tensorflow==2.3.0"
 ]
 
-requires-python = ">=3.8,<3.11"
+requires-python = ">=3.7,<3.11"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["multi-phase-sce/src"]
 
 [project.scripts]
 train="multi_phase.cli.training:main"
@@ -39,25 +38,8 @@ quality = [
     "isort",
     "mypy"
 ]
-test = ["pytest"]
-
-[tool.mypy]
-warn_unused_configs = true
-namespace_packages = true
-python_version = "3.8"
-strict = true
-warn_unreachable = true
-hide_error_codes = false
-pretty = true
-show_traceback = true
-install_types = true
-scripts_are_modules = true
-
-[tool.black]
-color = true
-line-length = 88
-target-version = ["py38"]
-
-[tool.isort]
-profile = "black"
-include_trailing_comma = true
+test = [
+    "pytest==7.1.2",
+    "protobuf==3.20.0",
+    "tensorflow==2.3.0",
+]

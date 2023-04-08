@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 import tensorflow as tf
-from typing import Callable
+from typing import Callable, List, Tuple
 
-from common import RANDOM_SEED
-from common.utils.affine_transformation import AffineTransform
+from multi_phase import RANDOM_SEED
+from multi_phase.utils.affine_transformation import AffineTransform
 
 PCT_CORRECT_THRESHOLD = 0.6
 DEFAULT_IMG_SIZE = [4, 6, 8]
@@ -28,7 +28,7 @@ TEST_IMG_DIMS_3D = [
 #-------------------------------------------------------------------------
 
 @pytest.mark.parametrize("img_dims", [(2, 3), (5, 6), (512, 512)])
-def test_coord_gen_2D(img_dims: tuple[int]) -> None:
+def test_coord_gen_2D(img_dims: Tuple[int]) -> None:
     """ Test flat 2D image coordinates """
 
     # 2D case
@@ -40,7 +40,7 @@ def test_coord_gen_2D(img_dims: tuple[int]) -> None:
 #-------------------------------------------------------------------------
 
 @pytest.mark.parametrize("img_dims", [(2, 3, 1), (5, 6, 4), (512, 512, 64)])
-def test_coord_gen_3D(img_dims: tuple[int]) -> None:
+def test_coord_gen_3D(img_dims: Tuple[int]) -> None:
     """ Test flat 3D image coordinates """
 
     affine = AffineTransform(img_dims)
@@ -57,7 +57,7 @@ def test_coord_gen_3D(img_dims: tuple[int]) -> None:
         [[1, 5, -1], [3, 1, 2]]
     ]
 )
-def test_transform_coords(thetas: list[list[int]]) -> None:
+def test_transform_coords(thetas: List[List[int]]) -> None:
     """ Test transforming flat image coordinates """
 
     thetas = np.array(thetas).astype("float32")

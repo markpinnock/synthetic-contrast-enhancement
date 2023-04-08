@@ -1,16 +1,10 @@
-name: Run tests (multi-phase-sce)
+name: Run code quality checks
 
-on:
-  push:
-    paths:
-      - multi-phase-sce/**
+on: push
 
 jobs:
-  run_tests:
+  check_code_quality:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: multi-phase-sce
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
@@ -21,5 +15,5 @@ jobs:
       - name: Install tox
         run: pip install tox
 
-      - name: Run pytest
-        run: tox -e py38-pytest
+      - name: Check quality
+        run: tox -e py38-quality

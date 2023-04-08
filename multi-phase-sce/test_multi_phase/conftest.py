@@ -1,13 +1,14 @@
 import numpy as np
 import pytest
 import tensorflow as tf
+from typing import List, Tuple
 
-TypeFixture = tuple[tf.Tensor, tf.Tensor, tf.Tensor, list[int]]
+TypeFixture = Tuple[tf.Tensor, tf.Tensor, tf.Tensor, List[int]]
 
 #-------------------------------------------------------------------------
 
 @pytest.fixture
-def setup_flip_img(img_dims: list[int]) -> TypeFixture:
+def setup_flip_img(img_dims: List[int]) -> TypeFixture:
     """ Create fixtures for flipping tests """
 
     vertical = np.zeros(img_dims[1:])
@@ -58,7 +59,7 @@ def setup_flip_img(img_dims: list[int]) -> TypeFixture:
 #-------------------------------------------------------------------------
 
 @pytest.fixture
-def setup_rotation_img(img_dims: list[int]) -> TypeFixture:
+def setup_rotation_img(img_dims: List[int]) -> TypeFixture:
     """ Create fixtures for rotation tests """
 
     base_img = np.zeros(img_dims[1:])
@@ -109,7 +110,7 @@ def setup_rotation_img(img_dims: list[int]) -> TypeFixture:
 #-------------------------------------------------------------------------
 
 @pytest.fixture
-def setup_scaling_img(img_dims: list[int]) -> TypeFixture:
+def setup_scaling_img(img_dims: List[int]) -> TypeFixture:
     """ Create fixtures for scaling tests """
 
     H = img_dims[1]

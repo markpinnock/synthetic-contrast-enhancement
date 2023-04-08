@@ -1,14 +1,14 @@
 import numpy as np
 import pytest
-from typing import Callable
+from typing import Callable, Tuple
 
-from common.utils.losses import focused_mae, FocusedMetric
+from multi_phase.utils.losses import focused_mae, FocusedMetric
 
 
 #-------------------------------------------------------------------------
 
 @pytest.fixture
-def create_test_tensor() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def create_test_tensor() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """ Create test tensor for MAE and metric tests """
 
     a = np.zeros((1, 2, 4, 4), dtype="float32")
